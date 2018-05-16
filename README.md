@@ -1,8 +1,8 @@
 # perl-text-chew
 
-A safer, more robust version of `chomp`.
+A safer, more robust version of `chomp`.  You should use it.
 
-Perl 5's `chomp` builtin is usually safe to use as long as you are
+Perl 5's `chomp` builtin is usually safe to use, as long as you are
 reading files with the same line terminators as whatever your
 `$INPUT_RECORD_SEPARATOR` or `$/` is set to, which is usually just the
 line feed character `"\n"`.
@@ -26,3 +26,42 @@ strings:
 - Vintage Macintosh CR (`"\r"`)
 - Anything else considered a linebreak sequence by Unicode (as
   implemented by Perl 5.10's `\R` regular expression sequence)
+
+## Installation
+
+To install this module, run the following commands:
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+
+## Support and Documentation
+
+SUPPORT AND DOCUMENTATION
+
+After installing, you can find documentation for this module with the
+perldoc command.
+
+    perldoc Text::Chew
+
+You can also (eventually) look for information at:
+
+    RT, CPAN's request tracker (report bugs here)
+        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Text-Chew
+
+    AnnoCPAN, Annotated CPAN documentation
+        http://annocpan.org/dist/Text-Chew
+
+    CPAN Ratings
+        http://cpanratings.perl.org/d/Text-Chew
+
+    Search CPAN
+        http://search.cpan.org/dist/Text-Chew/
+
+## LICENSE AND COPYRIGHT
+
+Copyright &copy; 2018 Darren Embry.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
