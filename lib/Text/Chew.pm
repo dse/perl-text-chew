@@ -6,7 +6,7 @@ use warnings;
 
 =head1 NAME
 
-Text::Chew - The great new Text::Chew!
+Text::Chew - A safer, more robust version of chomp
 
 =head1 VERSION
 
@@ -16,37 +16,156 @@ Version 0.01
 
 our $VERSION = '0.01';
 
-
 =head1 SYNOPSIS
-
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
 
     use Text::Chew;
 
-    my $foo = Text::Chew->new();
-    ...
+    while (<>) {
+        chew;                   # instead of chomp
+        ...
+    }
+
+=head1 DESCRIPTION
+
+This module exports the C<chew> function, which removes any trailing
+line terminator from the string(s) supplied to it or the special
+string C<$_>.
+
+Perl 5's C<chomp> builtin is generally safe as long as your program
+only reads files with the same line terminators as specified in C<$/>
+(C<$INPUT_RECORD_SEPARATOR>), which is generally C<"\n"> most of the
+time.  However, when reading files with Microsoft Windows/DOS CRLF
+line terminators (C<"\r\n">), C<chomp> will only remove the C<"\n">,
+leaving a trailing C<"\r">.
+
+C<Text::Chew> exists now, and you should probably start using it.
+
+C<chew> will automatically remove any of the following line
+terminators from the end of your string(s) regardless of your C<$/>
+setting:
+
+=over 4
+
+=item *
+
+Unix LF (C<\n>)
+
+=item *
+
+Windows/DOS CRLF (C<\r\n>)
+
+=item *
+
+Vintage Macintosh CR (<\r>)
+
+=item *
+
+Any string matching the C<\R> regular expression sequence.  See
+L<perlrebackslash/"Misc"> for details.
+
+=back
+
+=cut
+
+require Exporter;
+
+our @ISA;
+our @EXPORT;
+our @EXPORT_OK;
+
+BEGIN {
+    push(@ISA, "Exporter");
+    push(@EXPORT, qw(chew));
+    push(@EXPORT_OK, qw(chew chewed));
+}
 
 =head1 EXPORT
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+C<Text::Chew> exports C<chew> by default.  It can export the following
+functions:
 
-=head1 SUBROUTINES/METHODS
+=over 4
 
-=head2 function1
+=item chew
+
+=item chewed
+
+=back
+
+=head1 SUBROUTINES
+
+=head2 chew
+
+
 
 =cut
 
-sub function1 {
+our $DEBUG;
+our $BEFORE;
+our $AFTER;
+
+use Data::Dumper;
+
+sub chew (;+@);
+sub chew (;+@) {
+    if (!scalar @_) {
+        if (s/\R\z//) {
+            return length $&;
+        } else {
+            return 0;
+        }
+    }
+    if ($DEBUG) {
+        $BEFORE = \@_;
+        local $Data::Dumper::Indent = 0;
+        local $Data::Dumper::Terse = 1;
+        local $Data::Dumper::Useqq = 1;
+        warn("<< " . Dumper($BEFORE));
+    } else {
+        $BEFORE = undef;
+        $AFTER = undef;
+    }
+    my $chars = 0;
+    local $_;
+    foreach (@_) {
+        if (ref $_) {
+            if (ref $_ eq "HASH") {
+                foreach (values %$_) {
+                    $chars += chew;
+                }
+            } elsif (ref $_ eq "ARRAY") {
+                foreach (@$_) {
+                    $chars += chew;
+                }
+            } elsif (ref $_ eq "SCALAR") {
+                local $_ = $$_;
+                $chars += chew;
+            }
+        } else {
+            $chars += chew;
+        }
+    }
+    if ($DEBUG) {
+        $AFTER = \@_;
+        local $Data::Dumper::Indent = 0;
+        local $Data::Dumper::Terse = 1;
+        local $Data::Dumper::Useqq = 1;
+        warn(">> " . Dumper($AFTER));
+    }
+    return $chars;
 }
 
-=head2 function2
+=head2 chewed
 
 =cut
 
-sub function2 {
+sub chewed {
+    my @strings = @_;
+    foreach my $string (@strings) {
+        chew($string);
+    }
+    return @strings if wantarray;
+    return \@strings;
 }
 
 =head1 AUTHOR
@@ -55,12 +174,11 @@ Darren Embry, C<< <dse at webonastick.com> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-text-chew at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Text-Chew>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
-
+Please report any bugs or feature requests to C<bug-text-chew at
+rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Text-Chew>.  I will
+be notified, and then you'll automatically be notified of progress on
+your bug as I make changes.
 
 =head1 SUPPORT
 
@@ -68,8 +186,7 @@ You can find documentation for this module with the perldoc command.
 
     perldoc Text::Chew
 
-
-You can also look for information at:
+You can also (eventually) look for information at:
 
 =over 4
 
@@ -91,51 +208,15 @@ L<http://search.cpan.org/dist/Text-Chew/>
 
 =back
 
-
 =head1 ACKNOWLEDGEMENTS
-
 
 =head1 LICENSE AND COPYRIGHT
 
 Copyright 2018 Darren Embry.
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of the the Artistic License (2.0). You may obtain a
-copy of the full license at:
-
-L<http://www.perlfoundation.org/artistic_license_2_0>
-
-Any use, modification, and distribution of the Standard or Modified
-Versions is governed by this Artistic License. By using, modifying or
-distributing the Package, you accept this license. Do not use, modify,
-or distribute the Package, if you do not accept this license.
-
-If your Modified Version has been derived from a Modified Version made
-by someone other than you, you are nevertheless required to ensure that
-your Modified Version complies with the requirements of this license.
-
-This license does not grant you the right to use any trademark, service
-mark, tradename, or logo of the Copyright Holder.
-
-This license includes the non-exclusive, worldwide, free-of-charge
-patent license to make, have made, use, offer to sell, sell, import and
-otherwise transfer the Package with respect to any patent claims
-licensable by the Copyright Holder that are necessarily infringed by the
-Package. If you institute patent litigation (including a cross-claim or
-counterclaim) against any party alleging that the Package constitutes
-direct or contributory patent infringement, then this Artistic License
-to you shall terminate on the date that such litigation is filed.
-
-Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER
-AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES.
-THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY
-YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT HOLDER OR
-CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR
-CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF THE USE OF THE PACKAGE,
-EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
 
-1; # End of Text::Chew
+1;                              # End of Text::Chew
