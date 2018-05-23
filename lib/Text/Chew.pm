@@ -20,10 +20,26 @@ our $VERSION = '0.01';
 
     use Text::Chew;
 
+Example 1:
+
     while (<>) {
         chew;                   # instead of chomp
         ...
     }
+
+Example 2:
+
+    my @lines = <>;
+    chew @lines;
+    ...
+
+Example 3:
+
+    use Text::Chew qw(chewed);
+
+    my @lines = <>;
+    my @chewed_lines = chewed(@lines);
+    ...
 
 =head1 DESCRIPTION
 
@@ -96,18 +112,58 @@ functions:
 
 =head2 chew
 
+The C<chew> function modifies its arguments and returns the total
+number of characters removed.
 
+When no arguments are specified, C<chew> modifies the special variable
+C<$_>.
+
+You can pass an array, hash, or scalar variable as its first argument:
+
+    chew $scalar;
+    chew @array;
+    chew %hash;
+
+Each value of an C<@array> will be modified.  Each value of a C<%hash>
+will be modified; keys will be left alone.
+
+You may also pass references:
+
+    chew \$scalar1;
+    chew \@array1;
+    chew \%hash1;
+    chew $scalarref;
+    chew $arrayref;
+    chew $hashref;
+
+You may also pass multiple arguments.  Each argument can be a scalar,
+array, or hash variable, or a scalar, array, or hash reference.
+
+    chew $scalar, @array, %hash, $scalarref, $arrayref, $hashref;
+
+=head2 chewed
+
+The C<chewed> function takes each of its string arguments and returns
+a modified version.  Unlike C<chew>, C<chewed> does not modify its
+arguments.
+
+In a scalar context, C<chewed> returns a reference to an array of
+modified strings.  In an array context, C<chewed> just returns the
+array of modified strings.
 
 =cut
 
 our $DEBUG;
-our $BEFORE;
-our $AFTER;
 
 use Data::Dumper;
 
-sub chew (;+@);
-sub chew (;+@) {
+# NOTE: when chew is passed with a %hash, the `@` in the prototype
+# causes the %hash to be unfurled into a bunch of aliases.  `chew`
+# will happily modify those aliases but because only the values of
+# hashes are lvalues, only the values of the hash will be modified.
+
+sub chew (@);
+sub chew (@) {
     if (!scalar @_) {
         if (s/\R\z//) {
             return length $&;
@@ -116,14 +172,10 @@ sub chew (;+@) {
         }
     }
     if ($DEBUG) {
-        $BEFORE = \@_;
         local $Data::Dumper::Indent = 0;
         local $Data::Dumper::Terse = 1;
         local $Data::Dumper::Useqq = 1;
-        warn("<< " . Dumper($BEFORE));
-    } else {
-        $BEFORE = undef;
-        $AFTER = undef;
+        warn("<< " . Dumper(\@_));
     }
     my $chars = 0;
     local $_;
@@ -146,11 +198,10 @@ sub chew (;+@) {
         }
     }
     if ($DEBUG) {
-        $AFTER = \@_;
         local $Data::Dumper::Indent = 0;
         local $Data::Dumper::Terse = 1;
         local $Data::Dumper::Useqq = 1;
-        warn(">> " . Dumper($AFTER));
+        warn(">> " . Dumper(\@_));
     }
     return $chars;
 }
@@ -161,8 +212,12 @@ sub chew (;+@) {
 
 sub chewed {
     my @strings = @_;
+    my @result;
     foreach my $string (@strings) {
-        chew($string);
+        if (!ref($string)) {
+            chew($string);
+            push(@result, $string);
+        }
     }
     return @strings if wantarray;
     return \@strings;
@@ -171,44 +226,6 @@ sub chewed {
 =head1 AUTHOR
 
 Darren Embry, C<< <dse at webonastick.com> >>
-
-=head1 BUGS
-
-Please report any bugs or feature requests to C<bug-text-chew at
-rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Text-Chew>.  I will
-be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc Text::Chew
-
-You can also (eventually) look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker (report bugs here)
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Text-Chew>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Text-Chew>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Text-Chew>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Text-Chew/>
-
-=back
-
-=head1 ACKNOWLEDGEMENTS
 
 =head1 LICENSE AND COPYRIGHT
 
