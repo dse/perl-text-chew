@@ -141,16 +141,6 @@ array, or hash variable, or a scalar, array, or hash reference.
 
     chew $scalar, @array, %hash, $scalarref, $arrayref, $hashref;
 
-=head2 chewed
-
-The C<chewed> function takes each of its string arguments and returns
-a modified version.  Unlike C<chew>, C<chewed> does not modify its
-arguments.
-
-In a scalar context, C<chewed> returns a reference to an array of
-modified strings.  In an array context, C<chewed> just returns the
-array of modified strings.
-
 =cut
 
 our $DEBUG;
@@ -208,6 +198,18 @@ sub chew (@) {
 
 =head2 chewed
 
+The C<chewed> function takes each of its string arguments and returns
+a modified version.  Unlike C<chew>, C<chewed> does not modify its
+arguments.
+
+Also unlike C<chewed>, when passed a C<%hash>, the hash will be
+unfurled into an C<@array>, and modified versions of both the keys and
+values will be returned.
+
+In a scalar context, C<chewed> returns a reference to an array of
+modified strings.  In an array context, C<chewed> just returns the
+array of modified strings.
+
 =cut
 
 sub chewed {
@@ -222,6 +224,10 @@ sub chewed {
     return @strings if wantarray;
     return \@strings;
 }
+
+=head1 GIT REPOSITORY
+
+C<https://github.com/dse/perl-text-chew>
 
 =head1 AUTHOR
 
