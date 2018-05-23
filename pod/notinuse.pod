@@ -1,0 +1,42 @@
+=head1 NOTE
+
+Place the contents below this paragraph after the AUTHOR section and
+before the LICENSE AND COPYRIGHT section if and when ready.
+
+=head1 BUGS
+
+Please report any bugs or feature requests to C<bug-text-chew at
+rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Text-Chew>.  I will
+be notified, and then you'll automatically be notified of progress on
+your bug as I make changes.
+
+=head1 SUPPORT
+
+You can find documentation for this module with the perldoc command.
+
+    perldoc Text::Chew
+
+You can also (eventually) look for information at:
+
+=over 4
+
+=item * RT: CPAN's request tracker (report bugs here)
+
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Text-Chew>
+
+=item * AnnoCPAN: Annotated CPAN documentation
+
+L<http://annocpan.org/dist/Text-Chew>
+
+=item * CPAN Ratings
+
+L<http://cpanratings.perl.org/d/Text-Chew>
+
+=item * Search CPAN
+
+L<http://search.cpan.org/dist/Text-Chew/>
+
+=back
+
+=head1 ACKNOWLEDGEMENTS
