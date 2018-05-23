@@ -36,30 +36,11 @@ To install this module, run the following commands:
     make test
     make install
 
-## Support and Documentation
+## Documentation
 
-SUPPORT AND DOCUMENTATION
+See [the perldoc](pod/chew.pod).
 
-After installing, you can find documentation for this module with the
-perldoc command.
-
-    perldoc Text::Chew
-
-You can also (eventually) look for information at:
-
-    RT, CPAN's request tracker (report bugs here)
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Text-Chew
-
-    AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/Text-Chew
-
-    CPAN Ratings
-        http://cpanratings.perl.org/d/Text-Chew
-
-    Search CPAN
-        http://search.cpan.org/dist/Text-Chew/
-
-## LICENSE AND COPYRIGHT
+## License and Copyright
 
 Copyright &copy; 2018 Darren Embry.
 
